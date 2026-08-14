@@ -1543,13 +1543,19 @@
       // QR Code Modal Handlers
       const openQrModal = () => {
         const proj = getActiveProject();
-        const evaluatorUrl = 'http://localhost:8080/evaluator.html';
+        const evaluatorUrl = 'https://input-three-liard.vercel.app/evaluator.html';
 
         const jobTitleEl = document.getElementById('qr-modal-job-title');
         if (jobTitleEl) jobTitleEl.textContent = proj.jobTitle;
 
         const urlTextEl = document.getElementById('qr-modal-url-text');
         if (urlTextEl) urlTextEl.textContent = evaluatorUrl;
+
+        const linkBtnEl = document.getElementById('qr-modal-link-btn');
+        if (linkBtnEl) {
+          linkBtnEl.href = evaluatorUrl;
+          linkBtnEl.innerHTML = `<i data-lucide="external-link"></i> ${evaluatorUrl} 직접 접속하기`;
+        }
 
         const qrImg = document.getElementById('qr-code-img');
         if (qrImg) {
@@ -1581,6 +1587,7 @@
 
         const modalEl = document.getElementById('modal-qrcode');
         if (modalEl) modalEl.classList.add('active');
+        if (window.lucide) window.lucide.createIcons();
       };
 
       const btnOpenQr = document.getElementById('btn-open-qr-modal');
