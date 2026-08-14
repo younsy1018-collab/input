@@ -911,6 +911,119 @@ body {
 .w-action { width: 90px; text-align: center; }
 
 /* ==========================================================================
+   MOBILE RESPONSIVE MEDIA QUERIES (@media (max-width: 768px))
+   ========================================================================== */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 70px;
+    font-size: 15px;
+  }
+  .app-container {
+    padding: 0 10px;
+  }
+  .app-header {
+    padding: 16px 14px 0 14px;
+    border-radius: 0;
+    margin-bottom: 16px;
+  }
+  .header-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 8px;
+  }
+  .project-selector-wrapper {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .select-project {
+    width: 100%;
+  }
+  .mode-toggle-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .mode-toggle-group .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .header-summary-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 12px 0;
+  }
+  .summary-card {
+    padding: 8px 10px;
+  }
+  .summary-label {
+    font-size: 0.75rem;
+  }
+  .summary-value {
+    font-size: 0.95rem;
+  }
+  .app-nav {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .scoring-controls {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  .selector-group {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .selector-group select {
+    width: 100%;
+  }
+  .form-row-2, .form-row-3 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .card {
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table th, .table td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .modal-box {
+    margin: 10px;
+    max-height: 90vh;
+  }
+}
+
+/* ==========================================================================
    PRINT STYLESHEET (@media print)
    ========================================================================== */
 @media print {

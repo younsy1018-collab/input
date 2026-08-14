@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>평가위원 전용 채점 스마트 웹앱</title>
+  <title>평가위원 전용 채점 스마트 웹앱 (모바일 반응형)</title>
   
   <!-- Google Fonts: Noto Sans KR & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,11 +18,12 @@
     body {
       background-color: #f1f5f9;
       font-size: 16px;
+      -webkit-tap-highlight-color: transparent;
     }
     .eval-app-header {
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
       color: #fff;
-      padding: 1rem 1.25rem;
+      padding: 0.85rem 1.25rem;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -32,28 +33,29 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 0.75rem;
     }
     .eval-app-title {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      white-space: nowrap;
     }
     .eval-header-selectors {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
     }
     .eval-select {
       background: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.4);
       color: #fff;
-      padding: 0.45rem 0.85rem;
+      padding: 0.45rem 0.75rem;
       border-radius: 6px;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       font-weight: 600;
     }
     .eval-select option {
@@ -62,25 +64,26 @@
     }
     .cand-nav-bar {
       background: #fff;
-      padding: 0.75rem 1rem;
+      padding: 0.65rem 0.85rem;
       border-bottom: 1px solid #e2e8f0;
       position: sticky;
-      top: 60px;
+      top: 54px;
       z-index: 90;
       box-shadow: 0 2px 4px rgba(0,0,0,0.03);
     }
     .cand-chip {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.45rem 0.85rem;
+      gap: 0.3rem;
+      padding: 0.4rem 0.75rem;
       border-radius: 20px;
       background: #f8fafc;
       border: 1px solid #cbd5e1;
       font-weight: 600;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       color: #475569;
       cursor: pointer;
+      white-space: nowrap;
       transition: all 0.2s;
     }
     .cand-chip.active {
@@ -108,28 +111,28 @@
       color: #fff;
     }
     .eval-body {
-      max-width: 900px;
-      margin: 1.5rem auto 7rem auto;
-      padding: 0 1rem;
+      max-width: 860px;
+      margin: 1.25rem auto 7.5rem auto;
+      padding: 0 0.85rem;
     }
     .cand-card {
       background: #fff;
       border-radius: 12px;
       border: 1px solid #e2e8f0;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
     }
     .cand-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 2px solid #f1f5f9;
-      padding-bottom: 1rem;
-      margin-bottom: 1.25rem;
+      padding-bottom: 0.85rem;
+      margin-bottom: 1rem;
     }
     .cand-name {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: #0f172a;
     }
@@ -137,72 +140,77 @@
       background: #ffffff;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
+      padding: 1.1rem;
+      margin-bottom: 1rem;
       box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
     .score-item-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.65rem;
     }
     .score-item-title {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: #1e293b;
     }
     .score-item-desc {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #64748b;
-      margin-top: 0.2rem;
+      margin-top: 0.15rem;
     }
     .score-max-badge {
       background: #e0e7ff;
       color: #3730a3;
-      padding: 0.25rem 0.7rem;
+      padding: 0.2rem 0.6rem;
       border-radius: 12px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 700;
+      white-space: nowrap;
     }
     
-    /* 5-Point Likert Touch Button Group */
+    /* 5-Point Likert Touch Button Grid */
     .likert-btn-group {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 0.6rem;
-      margin-top: 1rem;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
     }
     .btn-likert {
       background: #f8fafc;
       border: 2px solid #94a3b8;
       border-radius: 10px;
-      padding: 0.9rem 0.2rem;
+      padding: 0.75rem 0.1rem;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s ease-in-out;
+      transition: all 0.15s ease-in-out;
       user-select: none;
+      min-height: 54px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
-    .btn-likert:hover {
-      border-color: #2563eb;
-      background: #eff6ff;
+    .btn-likert:active {
+      transform: scale(0.96);
     }
     .btn-likert.selected {
       background: #2563eb !important;
       color: #ffffff !important;
       border-color: #1d4ed8 !important;
       box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
-      transform: translateY(-2px);
     }
     .btn-likert .likert-score {
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 800;
       line-height: 1.1;
     }
     .btn-likert .likert-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      margin-top: 0.35rem;
+      margin-top: 0.2rem;
+      white-space: nowrap;
     }
     .btn-likert.selected .likert-label {
       color: #ffffff !important;
@@ -225,10 +233,10 @@
     .total-score-box {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
     .total-score-val {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: #2563eb;
     }
@@ -236,7 +244,7 @@
       border: 2px dashed #cbd5e1;
       border-radius: 8px;
       background: #fff;
-      margin-top: 1rem;
+      margin-top: 0.85rem;
       text-align: center;
       position: relative;
     }
@@ -252,18 +260,158 @@
       transform: translate(-50%, -50%);
       color: #94a3b8;
       pointer-events: none;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
+    }
+
+    /* ==========================================
+       MOBILE RESPONSIVE BREAKPOINTS (< 768px)
+       ========================================== */
+    @media (max-width: 768px) {
+      .eval-app-header {
+        padding: 0.65rem 0.85rem;
+        position: relative;
+      }
+      .eval-header-top {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+      }
+      .eval-app-title {
+        font-size: 1.05rem;
+        justify-content: space-between;
+      }
+      .eval-header-selectors {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.4rem;
+      }
+      .eval-select {
+        width: 100%;
+        font-size: 0.85rem;
+        padding: 0.45rem 0.6rem;
+      }
+      .cand-nav-bar {
+        position: sticky;
+        top: 0;
+        padding: 0.5rem 0.75rem;
+      }
+      .cand-nav-bar label {
+        font-size: 0.82rem;
+      }
+      #eval-candidate-select {
+        width: 100% !important;
+        font-size: 0.9rem;
+      }
+      .eval-body {
+        margin: 0.75rem auto 7rem auto;
+        padding: 0 0.5rem;
+      }
+      .cand-card {
+        padding: 0.85rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+      }
+      .cand-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+        padding-bottom: 0.75rem;
+      }
+      .cand-name {
+        font-size: 1.15rem;
+      }
+      .attendance-box {
+        flex-direction: column;
+        align-items: stretch !important;
+        padding: 0.75rem !important;
+        gap: 0.5rem !important;
+      }
+      .attendance-box > div {
+        width: 100%;
+      }
+      .attendance-box button {
+        flex: 1;
+        font-size: 0.82rem !important;
+        padding: 0.55rem 0.4rem !important;
+      }
+      .score-item-card {
+        padding: 0.85rem;
+        margin-bottom: 0.85rem;
+      }
+      .score-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+      }
+      .score-item-title {
+        font-size: 0.98rem;
+      }
+      .score-item-desc {
+        font-size: 0.8rem;
+      }
+
+      /* 5-Point Likert Touch Button Responsive Grid */
+      .likert-btn-group {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0.25rem;
+        margin-top: 0.75rem;
+      }
+      .btn-likert {
+        padding: 0.55rem 0.1rem;
+        border-width: 1.5px;
+        border-radius: 8px;
+        min-height: 50px;
+      }
+      .btn-likert .likert-score {
+        font-size: 1rem;
+        font-weight: 800;
+      }
+      .btn-likert .likert-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        margin-top: 0.15rem;
+        letter-spacing: -0.6px;
+        white-space: nowrap;
+      }
+
+      /* Fixed Bottom Navigation Bar */
+      .bottom-fix-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        padding: 0.6rem 0.75rem;
+      }
+      .total-score-box {
+        justify-content: space-between;
+        width: 100%;
+        font-size: 0.85rem;
+      }
+      .total-score-val {
+        font-size: 1.3rem;
+      }
+      .bottom-fix-bar > div:last-child {
+        display: flex;
+        width: 100%;
+        gap: 0.5rem;
+      }
+      .bottom-fix-bar button {
+        flex: 1;
+        padding: 0.65rem 0.5rem;
+        font-weight: 700;
+      }
     }
   </style>
 </head>
 <body>
   
-  <!-- Header -->
+  <!-- Mobile Responsive Header -->
   <header class="eval-app-header">
     <div class="eval-header-top">
       <div class="eval-app-title">
-        <i data-lucide="edit-3"></i>
-        <span>평가위원 스마트 채점 시스템</span>
+        <span><i data-lucide="edit-3"></i> 평가위원 채점 웹앱</span>
+        <a href="index.html" class="btn btn-sm btn-outline-light" style="color:#fff; text-decoration:none; padding:0.25rem 0.6rem; font-size:0.8rem;">
+          <i data-lucide="home"></i> 관리자
+        </a>
       </div>
       <div class="eval-header-selectors">
         <select id="eval-app-stage" class="eval-select">
@@ -273,27 +421,24 @@
         <select id="eval-app-evaluator" class="eval-select">
           <!-- Dynamically populated -->
         </select>
-        <button class="btn btn-sm btn-warning" id="btn-force-reset-data" style="font-weight:700;">
+        <button class="btn btn-sm btn-warning" id="btn-force-reset-data" style="font-weight:700; width:100%;">
           <i data-lucide="refresh-cw"></i> 5점 척도 데이터 초기화
         </button>
-        <a href="index.html" class="btn btn-sm btn-outline-light" style="color:#fff; text-decoration:none;">
-          <i data-lucide="home"></i> 관리자 화면
-        </a>
       </div>
     </div>
   </header>
 
   <!-- Candidate Combobox & Chips Navigation Bar -->
   <div class="cand-nav-bar">
-    <div style="display:flex; align-items:center; gap:0.75rem; width:100%; flex-wrap:wrap;">
-      <div style="display:flex; align-items:center; gap:0.4rem;">
-        <i data-lucide="user-search" style="color:#2563eb; width:18px;"></i>
-        <label for="eval-candidate-select" style="font-size:0.9rem; font-weight:700; color:#1e293b;">응시자 선택 (콤보박스):</label>
-        <select id="eval-candidate-select" class="form-control" style="width:240px; font-weight:700; border:2px solid #2563eb; background:#f0f9ff; color:#1e3a8a;">
-          <!-- Dynamically populated with options like: A-2026-001 홍길동 -->
+    <div style="display:flex; flex-direction:column; gap:0.4rem; width:100%;">
+      <div style="display:flex; align-items:center; gap:0.4rem; width:100%;">
+        <i data-lucide="user-search" style="color:#2563eb; width:18px; flex-shrink:0;"></i>
+        <label for="eval-candidate-select" style="font-size:0.88rem; font-weight:700; color:#1e293b; white-space:nowrap;">응시자 선택:</label>
+        <select id="eval-candidate-select" class="form-control" style="flex:1; font-weight:700; border:2px solid #2563eb; background:#f0f9ff; color:#1e3a8a; font-size:0.9rem;">
+          <!-- Dynamically populated options -->
         </select>
       </div>
-      <div id="cand-chip-container" style="display:inline-flex; gap:0.4rem; overflow-x:auto;"></div>
+      <div id="cand-chip-container" style="display:flex; gap:0.35rem; overflow-x:auto; padding-bottom:2px; -webkit-overflow-scrolling:touch;"></div>
     </div>
   </div>
 
@@ -305,40 +450,40 @@
       <div class="cand-card-header">
         <div>
           <span class="badge badge-primary" id="cand-no-badge">A-2026-001</span>
-          <h2 class="cand-name" id="cand-name-title" style="margin-top:0.3rem;">홍길동 지원자</h2>
+          <h2 class="cand-name" id="cand-name-title" style="margin-top:0.2rem;">홍길동 지원자</h2>
         </div>
         <div style="text-align: right;">
-          <div style="font-size:0.85rem; color:#64748b;">생년월일</div>
-          <div style="font-weight:600;" id="cand-birth-text">1996-03-15</div>
+          <div style="font-size:0.8rem; color:#64748b;">생년월일</div>
+          <div style="font-weight:600; font-size:0.9rem;" id="cand-birth-text">1996-03-15</div>
         </div>
       </div>
 
       <!-- Attendance Toggle Switch/Buttons -->
-      <div class="attendance-box margin-bottom-md" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:0.85rem 1.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
-        <div style="font-weight:700; color:#334155; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-          <i data-lucide="user-check" style="color:#2563eb;"></i> 응시 참여 및 결시 여부 선택:
+      <div class="attendance-box margin-bottom-md" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:0.75rem 1rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+        <div style="font-weight:700; color:#334155; font-size:0.95rem; display:flex; align-items:center; gap:0.4rem;">
+          <i data-lucide="user-check" style="color:#2563eb;"></i> 응시 참여 및 결시 여부:
         </div>
-        <div style="display:flex; gap:0.5rem;">
-          <button type="button" class="btn btn-sm btn-success active" id="btn-attend-present" style="font-weight:700; padding:0.5rem 1rem;">
-            <i data-lucide="check-circle"></i> 정상 참여 (채점 진행)
+        <div style="display:flex; gap:0.4rem; width:100%;">
+          <button type="button" class="btn btn-sm btn-success active" id="btn-attend-present" style="font-weight:700; flex:1;">
+            <i data-lucide="check-circle"></i> 정상 참여
           </button>
-          <button type="button" class="btn btn-sm btn-outline-danger" id="btn-attend-absent" style="font-weight:700; padding:0.5rem 1rem;">
-            <i data-lucide="x-circle"></i> 불참 / 결시 (점수 미부여)
+          <button type="button" class="btn btn-sm btn-outline-danger" id="btn-attend-absent" style="font-weight:700; flex:1;">
+            <i data-lucide="x-circle"></i> 불참 / 결시
           </button>
         </div>
       </div>
 
       <!-- Rubric Standard Notice & Guide Button -->
-      <div class="flex-between margin-bottom-md">
-        <div class="info-badge info">
-          <i data-lucide="star"></i> <span id="eval-scale-mode-text">표준 5점 척도: 5(매우우수) ~ 1(매우미흡)</span>
+      <div class="flex-between margin-bottom-md" style="gap:0.5rem; flex-wrap:wrap;">
+        <div class="info-badge info" style="font-size:0.8rem; padding:0.4rem 0.6rem;">
+          <i data-lucide="star"></i> <span id="eval-scale-mode-text">5점 척도: 5(매우우수) ~ 1(매우미흡)</span>
         </div>
-        <button class="btn btn-sm btn-outline-primary" id="btn-view-rubric-modal">
+        <button class="btn btn-sm btn-outline-primary" id="btn-view-rubric-modal" style="font-size:0.8rem; padding:0.4rem 0.6rem;">
           <i data-lucide="help-circle"></i> 루브릭 가이드
         </button>
       </div>
 
-      <!-- Form Inputs Container (5-Point Likert Scale Buttons Rendered Here) -->
+      <!-- Form Inputs Container (5-Point Likert Scale Touch Buttons Rendered Here) -->
       <div id="rubric-form-container">
         
         <!-- Item 1 -->
@@ -377,70 +522,16 @@
           </div>
         </div>
 
-        <!-- Item 3 -->
-        <div class="score-item-card">
-          <div class="score-item-header">
-            <div>
-              <div class="score-item-title">3. 자기소개서 및 직무수행계획</div>
-              <div class="score-item-desc">문장력, 논리성, 직무 이해도 및 목표</div>
-            </div>
-            <span class="score-max-badge">5점 만점</span>
-          </div>
-          <div class="likert-btn-group">
-            <div class="btn-likert" data-val="5"><div class="likert-score">5점</div><div class="likert-label">매우우수</div></div>
-            <div class="btn-likert" data-val="4"><div class="likert-score">4점</div><div class="likert-label">우수</div></div>
-            <div class="btn-likert" data-val="3"><div class="likert-score">3점</div><div class="likert-label">보통</div></div>
-            <div class="btn-likert" data-val="2"><div class="likert-score">2점</div><div class="likert-label">미흡</div></div>
-            <div class="btn-likert" data-val="1"><div class="likert-score">1점</div><div class="likert-label">매우미흡</div></div>
-          </div>
-        </div>
-
-        <!-- Item 4 -->
-        <div class="score-item-card">
-          <div class="score-item-header">
-            <div>
-              <div class="score-item-title">4. 직무 관련 우수성 및 자격증</div>
-              <div class="score-item-desc">전문 자격증 및 대외 활동 우수성</div>
-            </div>
-            <span class="score-max-badge">5점 만점</span>
-          </div>
-          <div class="likert-btn-group">
-            <div class="btn-likert" data-val="5"><div class="likert-score">5점</div><div class="likert-label">매우우수</div></div>
-            <div class="btn-likert" data-val="4"><div class="likert-score">4점</div><div class="likert-label">우수</div></div>
-            <div class="btn-likert" data-val="3"><div class="likert-score">3점</div><div class="likert-label">보통</div></div>
-            <div class="btn-likert" data-val="2"><div class="likert-score">2점</div><div class="likert-label">미흡</div></div>
-            <div class="btn-likert" data-val="1"><div class="likert-score">1점</div><div class="likert-label">매우미흡</div></div>
-          </div>
-        </div>
-
-        <!-- Item 5 -->
-        <div class="score-item-card">
-          <div class="score-item-header">
-            <div>
-              <div class="score-item-title">5. 발전가능성 및 조직적응력</div>
-              <div class="score-item-desc">인성, 사회봉사 및 팀워크 적응력</div>
-            </div>
-            <span class="score-max-badge">5점 만점</span>
-          </div>
-          <div class="likert-btn-group">
-            <div class="btn-likert" data-val="5"><div class="likert-score">5점</div><div class="likert-label">매우우수</div></div>
-            <div class="btn-likert" data-val="4"><div class="likert-score">4점</div><div class="likert-label">우수</div></div>
-            <div class="btn-likert" data-val="3"><div class="likert-score">3점</div><div class="likert-label">보통</div></div>
-            <div class="btn-likert" data-val="2"><div class="likert-score">2점</div><div class="likert-label">미흡</div></div>
-            <div class="btn-likert" data-val="1"><div class="likert-score">1점</div><div class="likert-label">매우미흡</div></div>
-          </div>
-        </div>
-
       </div>
     </div>
 
     <!-- Completion & Signature Card -->
     <div class="cand-card margin-top">
       <div class="card-header">
-        <h3><i data-lucide="pen-tool"></i> 심사 완료 및 전자 서명 제출</h3>
+        <h3 style="font-size:1.1rem;"><i data-lucide="pen-tool"></i> 심사 완료 및 전자 서명 제출</h3>
       </div>
       <div class="card-body">
-        <p class="text-sub" id="submit-check-desc">
+        <p class="text-sub" id="submit-check-desc" style="font-size:0.88rem;">
           총 <span id="submit-total-cand">10</span>명의 지원자에 대한 채점 상태를 검토하신 후 서명해 주세요.
         </p>
 
@@ -448,12 +539,12 @@
           <span class="sig-hint">여기에 손가락이나 펜으로 직접 서명하세요</span>
           <canvas id="sig-canvas"></canvas>
         </div>
-        <div class="flex-between margin-top-sm">
-          <button class="btn btn-sm btn-outline-dark" id="btn-clear-sig">
+        <div class="flex-between margin-top-sm" style="gap:0.5rem;">
+          <button class="btn btn-sm btn-outline-dark" id="btn-clear-sig" style="flex:1;">
             <i data-lucide="rotate-ccw"></i> 서명 지우기
           </button>
-          <button class="btn btn-primary" id="btn-submit-eval-app">
-            <i data-lucide="send"></i> 최종 채점표 제출
+          <button class="btn btn-primary" id="btn-submit-eval-app" style="flex:1; font-weight:700;">
+            <i data-lucide="send"></i> 채점표 제출
           </button>
         </div>
       </div>
@@ -464,12 +555,12 @@
   <!-- Bottom Navigation & Score Bar -->
   <div class="bottom-fix-bar">
     <div class="total-score-box">
-      <span style="font-weight:700; color:#475569;">현재 지원자 채점 총점:</span>
+      <span style="font-weight:700; color:#475569;">현재 채점 총점:</span>
       <span class="total-score-val" id="bottom-score-total">0점</span>
-      <span style="font-size:0.9rem; color:#64748b;" id="bottom-score-max">/ 25점 만점 (100점 자동환산)</span>
+      <span style="font-size:0.8rem; color:#64748b;" id="bottom-score-max">/ 25점 만점 (100점 환산)</span>
     </div>
 
-    <div style="display:flex; gap:0.5rem;">
+    <div style="display:flex; gap:0.4rem;">
       <button class="btn btn-light" id="btn-prev-cand"><i data-lucide="chevron-left"></i> 이전</button>
       <button class="btn btn-primary" id="btn-next-cand">다음 지원자 <i data-lucide="chevron-right"></i></button>
     </div>
@@ -477,12 +568,12 @@
 
   <!-- Rubric Guide Modal -->
   <div class="modal-backdrop" id="modal-rubric-guide">
-    <div class="modal-box">
+    <div class="modal-box" style="margin:1rem; max-height:90vh; display:flex; flex-direction:column;">
       <div class="modal-header">
         <h3><i data-lucide="book-open"></i> 평가 항목 루브릭 가이드</h3>
         <button class="btn-close" id="btn-close-rubric-modal"><i data-lucide="x"></i></button>
       </div>
-      <div class="modal-body" id="rubric-guide-body"></div>
+      <div class="modal-body" id="rubric-guide-body" style="overflow-y:auto;"></div>
       <div class="modal-footer">
         <button class="btn btn-primary" id="btn-confirm-rubric-modal">확인</button>
       </div>
