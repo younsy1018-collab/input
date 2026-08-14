@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>기관 통합 채용 평가 및 합격자 자동 결정 시스템</title>
+  
+  <!-- Google Fonts: Noto Sans KR & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- SheetJS CDN for Excel Import/Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- QRCode.js CDN for High Precision Client-Side QR Code Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-icon">
+            <i data-lucide="building-2"></i>
+          </div>
+          <div>
+            <h1 class="brand-title">기관 맞춤형 채용 평가 및 합격자 자동 결정 시스템</h1>
+            <p class="brand-subtitle">수기 계산 오류 0% | 서류 및 면접전형 전항목 표준 5점 척도(매우우수 5점 ~ 매우미흡 1점) & 100점 자동 환산</p>
+          </div>
+        </div>
+
+        <!-- Project Selector & Role Switcher -->
+        <div class="header-controls no-print">
+          <div class="project-selector-wrapper">
+            <label class="text-white-sub"><i data-lucide="briefcase"></i> 채용 공고 선택:</label>
+            <select id="header-project-select" class="form-control select-project">
+              <!-- Dynamically Populated Projects -->
+            </select>
+            <button class="btn btn-sm btn-outline-light" id="btn-create-project-modal" title="새로운 채용공고 추가">
+              <i data-lucide="plus"></i> 신규 공고
+            </button>
+          </div>
+
+          <div class="mode-toggle-group">
+            <button class="btn btn-sm btn-mode active" id="btn-mode-admin" data-mode="admin">
+              <i data-lucide="shield"></i> 담당자 관리 모드
+            </button>
+            <button class="btn btn-sm btn-warning" id="btn-open-qr-modal" style="font-weight:700;">
+              <i data-lucide="qr-code"></i> 위원 스마트폰 QR코드
+            </button>
+            <a href="evaluator.html" class="btn btn-sm btn-mode" id="btn-mode-evaluator" style="text-decoration: none;">
+              <i data-lucide="edit-3"></i> 위원 전용 채점 앱
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Summary Metrics Bar -->
+      <div class="header-summary-bar no-print">
+        <div class="summary-card">
+          <div class="summary-label"><i data-lucide="file-text"></i> 선택된 채용 공고</div>
+          <div class="summary-value" id="header-job-title">2026년도 상반기 신입사원 채용 (일반행정)</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label"><i data-lucide="users"></i> 서류/면접 위원 현황</div>
+          <div class="summary-value">
+            서류 <span id="header-doc-eval-count">2</span>/2명 · 면접 <span id="header-int-eval-count">5</span>/5명
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label"><i data-lucide="user-check"></i> 선발 예정 인원</div>
+          <div class="summary-value"><span id="header-pass-quota">3</span>명 <small class="text-sub">(예비 <span id="header-wait-quota">2</span>명)</small></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label"><i data-lucide="check-square"></i> 점수 입력 완료율</div>
+          <div class="summary-value">
+            <span id="header-scoring-progress">100%</span>
+            <div class="progress-mini">
+              <div class="progress-bar-inner" id="header-progress-bar" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="summary-card status-card">
+          <div class="summary-label"><i data-lucide="shield-check"></i> 자동 검수 상태</div>
+          <div class="summary-value text-success" id="header-audit-status">
+            <i data-lucide="check-circle-2"></i> 수기 오류 0건 (정상)
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Navigation Tabs -->
+      <nav class="app-nav no-print" id="main-nav-tabs">
+        <button class="nav-tab active" data-tab="tab-settings">
+          <i data-lucide="settings"></i> 1. 공고·위원·항목 설정
+        </button>
+        <button class="nav-tab" data-tab="tab-scoring">
+          <i data-lucide="edit-3"></i> 2. 위원별 점수 입력
+        </button>
+        <button class="nav-tab" data-tab="tab-aggregation">
+          <i data-lucide="bar-chart-3"></i> 3. 점수 종합 집계 & 검수
+        </button>
+        <button class="nav-tab" data-tab="tab-decision">
+          <i data-lucide="trophy"></i> 4. 최종 합격자 결정
+        </button>
+        <button class="nav-tab" data-tab="tab-data">
+          <i data-lucide="database"></i> 5. 전형별 엑셀 파일 저장
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="app-main">
+      
+      <!-- TAB 1: Settings -->
+      <section id="tab-settings" class="tab-content active">
+        <div class="content-header">
+          <div>
+            <h2><i data-lucide="sliders"></i> 채용 공고 설정 및 서류/면접 위원·평가항목 관리</h2>
+            <p>공고 기본 정보, 서류위원(최대 2명) 및 면접위원(최대 5명), 전형별 5점 척도 항목을 설정합니다.</p>
+          </div>
+          <button class="btn btn-primary" id="btn-save-settings">
+            <i data-lucide="save"></i> 설정 저장 및 적용
+          </button>
+        </div>
+
+        <div class="grid-2col">
+          <div class="card">
+            <div class="card-header">
+              <h3><i data-lucide="briefcase"></i> 공고 기본정보 및 전형 비율 설정</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>채용 공고명 *</label>
+                <input type="text" id="setting-job-title" class="form-control" value="2026년도 상반기 신입사원 채용 (일반행정)">
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label>서류전형 반영 비율 (%)</label>
+                  <input type="number" id="setting-doc-weight" class="form-control ratio-input" value="30" min="0" max="100">
+                </div>
+                <div class="form-group">
+                  <label>면접전형 반영 비율 (%)</label>
+                  <input type="number" id="setting-interview-weight" class="form-control ratio-input" value="70" min="0" max="100">
+                </div>
+              </div>
+              <div id="ratio-validation-msg" class="info-badge success">
+                <i data-lucide="check"></i> 비율 합계: 100% (서류 30% + 면접 70%)
+              </div>
+
+              <hr class="divider">
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label>최종 합격 인원 (명)</label>
+                  <input type="number" id="setting-pass-quota" class="form-control" value="3" min="1">
+                </div>
+                <div class="form-group">
+                  <label>예비 합격 인원 (명)</label>
+                  <input type="number" id="setting-wait-quota" class="form-control" value="2" min="0">
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label>서류 과락 기준 점수 (100점 환산 기준)</label>
+                  <input type="number" id="setting-doc-cutoff" class="form-control" value="60" min="0" max="100">
+                  <small class="text-sub">이 점수 미만 시 과락 탈락</small>
+                </div>
+                <div class="form-group">
+                  <label>면접 과락 기준 점수 (100점 환산 기준)</label>
+                  <input type="number" id="setting-interview-cutoff" class="form-control" value="60" min="0" max="100">
+                  <small class="text-sub">이 점수 미만 시 과락 탈락</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header flex-between">
+              <h3><i data-lucide="users"></i> 전형별 위원 명단 관리 (규정 정원 준수)</h3>
+            </div>
+            <div class="card-body">
+              <div class="committee-section-box">
+                <div class="section-title">
+                  <h4 class="text-primary"><i data-lucide="file-check"></i> 서류전형 위원 (최대 2명 이내)</h4>
+                  <button class="btn btn-sm btn-outline-primary" id="btn-add-doc-eval">
+                    <i data-lucide="user-plus"></i> 서류 위원 추가
+                  </button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm" id="doc-eval-table">
+                    <thead>
+                      <tr>
+                        <th>구분</th>
+                        <th>성명</th>
+                        <th>소속 / 직위</th>
+                        <th class="w-action">관리</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <hr class="divider">
+
+              <div class="committee-section-box">
+                <div class="section-title">
+                  <h4 class="text-indigo"><i data-lucide="message-square"></i> 면접전형 위원 (최대 5명 이내)</h4>
+                  <button class="btn btn-sm btn-outline-primary" id="btn-add-interview-eval">
+                    <i data-lucide="user-plus"></i> 면접 위원 추가
+                  </button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm" id="interview-eval-table">
+                    <thead>
+                      <tr>
+                        <th>구분</th>
+                        <th>성명</th>
+                        <th>소속 / 직위</th>
+                        <th class="w-action">관리</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rubrics Custom Editor -->
+        <div class="card margin-top">
+          <div class="card-header flex-between">
+            <h3><i data-lucide="list-checks"></i> 전형별 평가 항목 편집 (서류·면접 전항목 5점 척도)</h3>
+            <span class="text-sub">※ 각 전형별 항목당 5점 만점(5:매우우수 ~ 1:매우미흡) 척도로 평가되며 100점으로 자동 환산됩니다.</span>
+          </div>
+          <div class="card-body">
+            <div class="grid-2col">
+              <!-- Doc 5-Point Criteria Editor -->
+              <div class="criteria-editor-box">
+                <div class="flex-between margin-bottom-sm">
+                  <h4 class="text-primary"><i data-lucide="file-check"></i> 서류전형 5점 척도 항목 편집 (총 <span id="doc-crit-sum">5</span>개 항목)</h4>
+                  <button class="btn btn-sm btn-outline-primary" id="btn-add-doc-crit">
+                    <i data-lucide="plus"></i> 항목 추가
+                  </button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm" id="doc-crit-table">
+                    <thead>
+                      <tr>
+                        <th>서류 평가 항목명 (5점 척도)</th>
+                        <th style="width: 90px;">만점</th>
+                        <th>항목 세부 설명 및 채점 기준</th>
+                        <th class="w-action">삭제</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <div class="info-badge info margin-top-sm">
+                  <i data-lucide="star"></i> 5점 척도: 5(매우우수) / 4(우수) / 3(보통) / 2(미흡) / 1(매우미흡)
+                </div>
+              </div>
+
+              <!-- Interview 5-Point Likert Scale Criteria Editor -->
+              <div class="criteria-editor-box">
+                <div class="flex-between margin-bottom-sm">
+                  <h4 class="text-indigo"><i data-lucide="message-square"></i> 면접전형 5점 척도 항목 편집 (총 <span id="int-crit-count">5</span>개 항목)</h4>
+                  <button class="btn btn-sm btn-outline-primary" id="btn-add-int-crit">
+                    <i data-lucide="plus"></i> 항목 추가
+                  </button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm" id="interview-crit-table">
+                    <thead>
+                      <tr>
+                        <th>면접 평가 항목명 (5점 척도)</th>
+                        <th style="width: 90px;">만점</th>
+                        <th>항목 세부 설명 및 채점 기준</th>
+                        <th class="w-action">삭제</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <div class="info-badge info margin-top-sm" style="background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe;">
+                  <i data-lucide="star"></i> 5점 척도: 5(매우우수) / 4(우수) / 3(보통) / 2(미흡) / 1(매우미흡)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bonus Rules Custom Editor -->
+        <div class="card margin-top">
+          <div class="card-header flex-between">
+            <h3><i data-lucide="award"></i> 가점 항목 및 가산점 우대 규정 관리</h3>
+            <button class="btn btn-sm btn-outline-primary" id="btn-add-bonus-rule">
+              <i data-lucide="plus"></i> 가점 항목 추가
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm" id="bonus-rules-table">
+                <thead>
+                  <tr>
+                    <th style="width: 220px;">가점 항목명</th>
+                    <th style="width: 150px;">가산 방식</th>
+                    <th style="width: 120px;">가산 수치</th>
+                    <th>가산점 설명 및 규정 상세 내용</th>
+                    <th class="w-action">삭제</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="info-badge info margin-top-sm">
+              <i data-lucide="info"></i> 비율 가산(%)은 서류+면접 환산점수의 N%를 가산하며, 점수 직접 가산(점)은 최종 총점에 해당 점수를 합산합니다.
+            </div>
+          </div>
+        </div>
+
+        <!-- Master Save Settings Action Card -->
+        <div class="card margin-top flex-between" style="padding: 1.25rem; background: #f8fafc;">
+          <div>
+            <h4 style="margin: 0; color: #1e293b;"><i data-lucide="shield-check"></i> 채용 공고 설정 및 전형별 항목 저장</h4>
+            <small class="text-sub">담당자가 변경한 서류전형 5점 항목, 면접전형 5점 항목 및 가점 규정이 즉시 시스템에 반영됩니다.</small>
+          </div>
+          <button class="btn btn-lg btn-primary" id="btn-save-settings">
+            <i data-lucide="save"></i> 전체 설정 및 항목 저장
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB 2: Scoring -->
+      <section id="tab-scoring" class="tab-content">
+        <div class="content-header">
+          <div>
+            <h2><i data-lucide="edit-3"></i> 위원 점수 입력</h2>
+            <p>서류위원 및 면접위원별 지원자 점수를 5점 척도로 선택하여 입력합니다. (100점 자동 환산)</p>
+          </div>
+          <div class="scoring-controls">
+            <div class="selector-group">
+              <label><i data-lucide="layers"></i> 전형 선택:</label>
+              <select id="scoring-stage-select" class="form-control select-lg">
+                <option value="doc">서류 전형 (서류위원 2명 이내 · 5점 척도)</option>
+                <option value="interview">면접 전형 (면접위원 5명 이내 · 5점 척도)</option>
+              </select>
+            </div>
+            <div class="selector-group">
+              <label><i data-lucide="user-check"></i> 위원 선택:</label>
+              <select id="scoring-evaluator-select" class="form-control select-lg"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card margin-bottom flex-between no-print" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe; padding: 1.25rem;">
+          <div>
+            <h4 style="color:#1e40af; margin:0 0 0.3rem 0; display:flex; align-items:center; gap:0.4rem;">
+              <i data-lucide="qr-code"></i> 평가위원 모바일/태블릿 접속 QR 코드 안내
+            </h4>
+            <p style="color:#1e3a8a; margin:0; font-size:0.9rem;">
+              평가위원들이 본인의 스마트폰이나 태블릿 카메라로 QR 코드를 스캔하면 바로 5점 척도 채점 앱으로 접속됩니다.
+            </p>
+          </div>
+          <button class="btn btn-primary" id="btn-show-qr-card" style="font-weight:700;">
+            <i data-lucide="smartphone"></i> QR 코드 발급 / 안내문 출력
+          </button>
+        </div>
+
+        <div class="card status-banner-card">
+          <div class="status-banner-content">
+            <div class="status-info">
+              <span class="badge badge-lg badge-primary" id="current-eval-badge">서류전형 - 서류위원 A</span>
+              <span>입력 완료 지원자: <strong id="scoring-done-count">10</strong> / <span id="scoring-total-count">10</span>명</span>
+            </div>
+            <div class="status-actions">
+              <span id="scoring-valid-status" class="status-pill success"><i data-lucide="check-circle"></i> 모든 지원자 점수 입력 완료</span>
+              <button class="btn btn-sm btn-success" id="btn-mark-eval-complete">
+                <i data-lucide="check-check"></i> 입력 완료 확정
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card margin-top">
+          <div class="card-header flex-between">
+            <h3><i data-lucide="table"></i> 지원자별 세부 항목 점수 입력표 (5점 척도 선택)</h3>
+            <div class="text-sub small" id="scoring-guide-text">
+              <i data-lucide="info"></i> 1~5점 척도 점수를 선택하면, 100점 만점으로 자동 환산됩니다.
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-bordered table-input" id="scorecard-table">
+                <thead>
+                  <tr id="scorecard-thead-tr"></tr>
+                </thead>
+                <tbody id="scorecard-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: Aggregation -->
+      <section id="tab-aggregation" class="tab-content">
+        <div class="content-header">
+          <div>
+            <h2><i data-lucide="bar-chart-3"></i> 점수 종합 집계 & 수기 오류 검수 대시보드</h2>
+            <p>서류위원(2명 이내) 및 면접위원(5명 이내) 점수를 집계하고 수기 오차를 검수합니다.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline-primary" id="btn-recalculate">
+              <i data-lucide="refresh-cw"></i> 실시간 집계 새로고침
+            </button>
+          </div>
+        </div>
+
+        <div class="grid-4col">
+          <div class="metric-card success">
+            <div class="metric-icon"><i data-lucide="shield-check"></i></div>
+            <div class="metric-info">
+              <div class="metric-value" id="audit-missing-count">0건</div>
+              <div class="metric-label">미입력 / 누락 항목</div>
+            </div>
+          </div>
+          <div class="metric-card success">
+            <div class="metric-icon"><i data-lucide="alert-triangle"></i></div>
+            <div class="metric-info">
+              <div class="metric-value" id="audit-outofrange-count">0건</div>
+              <div class="metric-label">범위 초과 점수</div>
+            </div>
+          </div>
+          <div class="metric-card success">
+            <div class="metric-icon"><i data-lucide="calculator"></i></div>
+            <div class="metric-info">
+              <div class="metric-value" id="audit-formula-status">100% 정상</div>
+              <div class="metric-label">계산 공식 일치율</div>
+            </div>
+          </div>
+          <div class="metric-card info">
+            <div class="metric-icon"><i data-lucide="user-x"></i></div>
+            <div class="metric-info">
+              <div class="metric-value" id="audit-cutoff-count">1명</div>
+              <div class="metric-label">전형 과락(기준미달) 탈락자</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-sub-nav margin-top">
+          <button class="tab-sub-btn active" data-subtab="subtab-weighted">🏆 종합 환산 점수 집계표</button>
+          <button class="tab-sub-btn" data-subtab="subtab-doc">📄 서류전형 위원별 집계표 (5점 척도 환산)</button>
+          <button class="tab-sub-btn" data-subtab="subtab-interview">🗣️ 면접전형 위원별 집계표 (5점 척도 환산)</button>
+        </div>
+
+        <div id="subtab-weighted" class="subtab-content active">
+          <div class="card">
+            <div class="card-header flex-between">
+              <h3><i data-lucide="layers"></i> 서류환산 + 면접환산 + 가산점 종합 집계표</h3>
+              <button class="btn btn-sm btn-success" id="btn-export-final-top">
+                <i data-lucide="file-spreadsheet"></i> 최종 결정표 엑셀 다운로드 (.xlsx)
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover table-striped" id="weighted-summary-table">
+                  <thead>
+                    <tr>
+                      <th>수험번호</th>
+                      <th>성명</th>
+                      <th>가산점 구분</th>
+                      <th>서류 평균 (100점)</th>
+                      <th>서류 환산 (<span class="doc-w-label">30</span>%)</th>
+                      <th>면접 평균 (100점)</th>
+                      <th>면접 환산 (<span class="int-w-label">70</span>%)</th>
+                      <th>가산점</th>
+                      <th>최종 환산 총점</th>
+                      <th>과락 여부</th>
+                      <th>상태</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="subtab-doc" class="subtab-content">
+          <div class="card">
+            <div class="card-header flex-between">
+              <h3><i data-lucide="file-text"></i> 서류전형 위원별 점수 집계 상세 (서류위원 2명 이내)</h3>
+              <button class="btn btn-sm btn-outline-primary" id="btn-export-doc-stage">
+                <i data-lucide="file-spreadsheet"></i> 📄 서류전형 집계표 엑셀 다운로드 (.xlsx)
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover" id="doc-breakdown-table">
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="subtab-interview" class="subtab-content">
+          <div class="card">
+            <div class="card-header flex-between">
+              <h3><i data-lucide="message-square"></i> 면접전형 위원별 점수 집계 상세 (면접위원 5명 이내)</h3>
+              <button class="btn btn-sm btn-outline-primary" id="btn-export-int-stage">
+                <i data-lucide="file-spreadsheet"></i> 🗣️ 면접전형 집계표 엑셀 다운로드 (.xlsx)
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover" id="interview-breakdown-table">
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: Final Decision -->
+      <section id="tab-decision" class="tab-content">
+        <div class="content-header no-print">
+          <div>
+            <h2><i data-lucide="trophy"></i> 최종 합격자 결정 및 채용 심사 의결서</h2>
+            <p>자동 순위 정렬, 동점자 처리 규칙, 과락 검증을 거친 최종 합격자 결정 결과를 확인하고 심사 의결서를 출력합니다.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline-dark" id="btn-print-report">
+              <i data-lucide="printer"></i> 채용 의결서 인쇄 / PDF 출력
+            </button>
+            <button class="btn btn-success" id="btn-confirm-final">
+              <i data-lucide="check-circle-2"></i> 최종 합격자 확정
+            </button>
+          </div>
+        </div>
+
+        <div class="printable-document">
+          <div class="doc-official-header">
+            <h1 class="doc-title" id="print-official-title">2026년도 상반기 신입사원 채용 최종 합격자 결정 심사의결서</h1>
+            <div class="doc-meta-grid">
+              <div><strong>공고명:</strong> <span id="print-job-title">2026년도 상반기 신입사원 채용 (일반행정)</span></div>
+              <div><strong>선발예정인원:</strong> 합격 <span id="print-pass-quota">3</span>명 / 예비 <span id="print-wait-quota">2</span>명</div>
+              <div><strong>심사일자:</strong> <span id="print-date">2026년 08월 14일</span></div>
+              <div><strong>평가비율:</strong> 서류(<span id="print-doc-weight">30</span>%) + 면접(<span id="print-interview-weight">70</span>%) + 가산점</div>
+            </div>
+          </div>
+
+          <div class="decision-summary-bar no-print">
+            <div class="decision-stat stat-pass">
+              <div class="stat-num" id="dec-pass-count">3</div>
+              <div class="stat-label">최종 합격자</div>
+            </div>
+            <div class="decision-stat stat-wait">
+              <div class="stat-num" id="dec-wait-count">2</div>
+              <div class="stat-label">예비 합격자</div>
+            </div>
+            <div class="decision-stat stat-fail">
+              <div class="stat-num" id="dec-fail-count">4</div>
+              <div class="stat-label">불합격자</div>
+            </div>
+            <div class="decision-stat stat-cutoff">
+              <div class="stat-num" id="dec-cutoff-count">1</div>
+              <div class="stat-label">과락 탈락자</div>
+            </div>
+          </div>
+
+          <div class="card margin-top">
+            <div class="card-header no-print">
+              <h3><i data-lucide="list-ordered"></i> 최종 합격자 결정 석차 명단</h3>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-bordered table-decision" id="final-decision-table">
+                  <thead>
+                    <tr>
+                      <th class="text-center" style="width:60px;">석차</th>
+                      <th class="text-center">수험번호</th>
+                      <th class="text-center">성명</th>
+                      <th class="text-center">서류환산점</th>
+                      <th class="text-center">면접환산점</th>
+                      <th class="text-center">가산점</th>
+                      <th class="text-center">최종총점</th>
+                      <th class="text-center">과락여부</th>
+                      <th class="text-center" style="width:120px;">최종 판정</th>
+                      <th class="text-center">비고 및 동점자 우선순위 사유</th>
+                    </tr>
+                  </thead>
+                  <tbody id="final-decision-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="official-signature-section">
+            <h4 class="sig-title">위와 같이 최종 합격자를 결정하고 이에 서명합니다.</h4>
+            <div class="sig-grid" id="sig-grid-container"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: Data & Excel Exports -->
+      <section id="tab-data" class="tab-content">
+        <div class="content-header">
+          <div>
+            <h2><i data-lucide="database"></i> 전형별 개별 엑셀 파일 저장 및 데이터 관리</h2>
+            <p>서류전형, 면접전형, 최종 합격자 결정 결과표를 전형별 개별 엑셀 파일(.xlsx)로 분리 저장합니다.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary" id="btn-add-candidate-modal">
+              <i data-lucide="user-plus"></i> 신규 지원자 등록
+            </button>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <div class="card">
+            <div class="card-header">
+              <h3><i data-lucide="file-spreadsheet"></i> 전형별 엑셀 파일 개별/통합 저장 (.xlsx)</h3>
+            </div>
+            <div class="card-body">
+              <div class="excel-box margin-bottom-sm">
+                <div class="excel-icon text-primary"><i data-lucide="file-text"></i></div>
+                <div class="excel-info" style="flex: 1;">
+                  <h4>1. 서류전형 집계 결과 엑셀 파일 저장 (5점 척도)</h4>
+                  <p>서류위원(2명 이내) 5점 척도 항목별 점수, 서류 평균점수, 환산점수 표</p>
+                  <button class="btn btn-outline-primary btn-sm margin-top-sm" id="btn-export-doc-file">
+                    <i data-lucide="download"></i> 📄 [서류전형 결과표] 다운로드 (.xlsx)
+                  </button>
+                </div>
+              </div>
+
+              <div class="excel-box margin-bottom-sm">
+                <div class="excel-icon text-indigo"><i data-lucide="message-square"></i></div>
+                <div class="excel-info" style="flex: 1;">
+                  <h4>2. 면접전형 집계 결과 엑셀 파일 저장 (5점 척도)</h4>
+                  <p>면접위원(5명 이내) 5점 척도 항목별 점수, 면접 평균점수, 환산점수 표</p>
+                  <button class="btn btn-outline-primary btn-sm margin-top-sm" id="btn-export-int-file">
+                    <i data-lucide="download"></i> 🗣️ [면접전형 결과표] 다운로드 (.xlsx)
+                  </button>
+                </div>
+              </div>
+
+              <div class="excel-box highlight-box margin-bottom-sm">
+                <div class="excel-icon text-success"><i data-lucide="trophy"></i></div>
+                <div class="excel-info" style="flex: 1;">
+                  <h4>3. 최종 합격자 결정 결과 엑셀 파일 저장</h4>
+                  <p>서류/면접 환산점수, 가산점, 최종총점, 합격/예비/과락 판정 및 석차 명단</p>
+                  <button class="btn btn-success btn-sm margin-top-sm" id="btn-export-final-file">
+                    <i data-lucide="download"></i> 🏆 [최종합격자 결정표] 다운로드 (.xlsx)
+                  </button>
+                </div>
+              </div>
+
+              <div class="excel-box" style="background: #f8fafc; border-color: #94a3b8;">
+                <div class="excel-icon"><i data-lucide="folder-archive"></i></div>
+                <div class="excel-info" style="flex: 1;">
+                  <h4>4. 전 전형 통합 결과 엑셀 패키지 저장</h4>
+                  <p>서류집계표 + 면접집계표 + 최종결정표 3개 탭이 포함된 전체 통합 파일</p>
+                  <button class="btn btn-dark btn-sm margin-top-sm" id="btn-export-package-file">
+                    <i data-lucide="file-archive"></i> 📁 [전전형 통합 결과표] 다운로드 (.xlsx)
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3><i data-lucide="upload"></i> 엑셀 양식 및 임포트 관리</h3>
+            </div>
+            <div class="card-body">
+              <div class="excel-box margin-bottom-sm">
+                <div class="excel-icon"><i data-lucide="download"></i></div>
+                <div class="excel-info">
+                  <h4>지원자 등록용 엑셀 템플릿</h4>
+                  <p>지원자 명단 작성을 위한 표준 엑셀 양식을 다운로드합니다.</p>
+                  <button class="btn btn-outline-dark btn-sm margin-top-sm" id="btn-download-template">
+                    <i data-lucide="file-down"></i> 엑셀 템플릿 다운로드 (.xlsx)
+                  </button>
+                </div>
+              </div>
+
+              <div class="excel-box margin-bottom-sm">
+                <div class="excel-icon"><i data-lucide="upload"></i></div>
+                <div class="excel-info">
+                  <h4>지원자 명단 엑셀 일괄 업로드</h4>
+                  <p>작성된 엑셀 파일을 업로드하여 지원자를 일괄 등록합니다.</p>
+                  <input type="file" id="excel-file-input" accept=".xlsx, .xls" class="file-input" hidden>
+                  <button class="btn btn-primary btn-sm margin-top-sm" onclick="document.getElementById('excel-file-input').click()">
+                    <i data-lucide="file-up"></i> 엑셀 파일 불러오기
+                  </button>
+                </div>
+              </div>
+
+              <div class="btn-group-vertical margin-top">
+                <button class="btn btn-outline-dark" id="btn-load-demo">
+                  <i data-lucide="sparkles"></i> 💡 데모 공고 새로 생성
+                </button>
+                <button class="btn btn-outline-danger margin-top-sm" id="btn-reset-current">
+                  <i data-lucide="trash-2"></i> ⚠️ 현재 공고 지원자/점수 초기화
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card margin-top">
+          <div class="card-header flex-between">
+            <h3><i data-lucide="users"></i> 지원자 명단 관리</h3>
+            <span class="text-sub">총 <strong id="candidate-list-count">10</strong>명</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover" id="candidate-list-table">
+                <thead>
+                  <tr>
+                    <th>수험번호</th>
+                    <th>성명</th>
+                    <th>생년월일</th>
+                    <th>연락처</th>
+                    <th>가산점 구분</th>
+                    <th class="w-action">관리</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal-backdrop" id="modal-project">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i data-lucide="briefcase"></i> 신규 채용 공고 등록</h3>
+        <button class="btn-close" id="btn-close-project-modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>채용 공고명 *</label>
+          <input type="text" id="new-proj-title" class="form-control" placeholder="예: 2026년도 하반기 경력직 채용" required>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>선발 정원 (명)</label>
+            <input type="number" id="new-proj-pass" class="form-control" value="2" min="1">
+          </div>
+          <div class="form-group">
+            <label>예비 정원 (명)</label>
+            <input type="number" id="new-proj-wait" class="form-control" value="1" min="0">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" id="btn-cancel-project">취소</button>
+        <button class="btn btn-primary" id="btn-save-project"><i data-lucide="plus"></i> 공고 등록</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-candidate">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i data-lucide="user-plus"></i> 지원자 정보 등록</h3>
+        <button class="btn-close" id="btn-close-candidate-modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-candidate">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>수험번호 *</label>
+              <input type="text" id="cand-no" class="form-control" placeholder="예: A-2026-001" required>
+            </div>
+            <div class="form-group">
+              <label>성명 *</label>
+              <input type="text" id="cand-name" class="form-control" placeholder="예: 홍길동" required>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>생년월일</label>
+              <input type="date" id="cand-birth" class="form-control" value="1995-05-15">
+            </div>
+            <div class="form-group">
+              <label>연락처</label>
+              <input type="text" id="cand-phone" class="form-control" placeholder="010-1234-5678">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>가산점 적용 구분</label>
+            <select id="cand-bonus-select" class="form-control">
+              <option value="none">해당 없음 (0점)</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" id="btn-cancel-candidate">취소</button>
+        <button class="btn btn-primary" id="btn-save-candidate"><i data-lucide="check"></i> 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-evaluator">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-eval-title"><i data-lucide="user-plus"></i> 평가위원 등록</h3>
+        <button class="btn-close" id="btn-close-evaluator-modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="eval-target-stage">
+        <div class="form-group">
+          <label>평가위원 이름 *</label>
+          <input type="text" id="eval-name-input" class="form-control" placeholder="예: 김철수 위원">
+        </div>
+        <div class="form-group">
+          <label>소속 / 직위</label>
+          <input type="text" id="eval-role-input" class="form-control" placeholder="예: 외부 인사전문가 / 평가위원">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" id="btn-cancel-evaluator">취소</button>
+        <button class="btn btn-primary" id="btn-save-evaluator"><i data-lucide="plus"></i> 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: QR Code for Smartphone Access -->
+  <div class="modal-backdrop" id="modal-qrcode">
+    <div class="modal-box" style="max-width: 540px; text-align: center;">
+      <div class="modal-header">
+        <h3><i data-lucide="qr-code"></i> 평가위원 모바일 접속 QR 코드</h3>
+        <button class="btn-close" id="btn-close-qr-modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem;">
+        <div class="info-badge info margin-bottom-md" style="text-align: left;">
+          <i data-lucide="smartphone"></i> <strong>위원 스마트폰 카메라 앱</strong>을 열고 아래 QR 코드를 스캔해 주세요.
+        </div>
+
+        <div style="background:#fff; border:3px solid #1e293b; border-radius:16px; padding:1.5rem; display:inline-block; box-shadow:0 8px 20px rgba(0,0,0,0.1);">
+          <!-- Dynamic High Precision Canvas Container -->
+          <div id="qr-code-canvas-box" style="width:240px; height:240px; margin:0 auto; display:flex; align-items:center; justify-content:center;"></div>
+
+          <img id="qr-code-img" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=http%3A%2F%2Flocalhost%3A8080%2Fevaluator.html" alt="평가위원 채점 스마트 웹앱 접속 QR 코드" style="width:240px; height:240px; display:none; margin:0 auto;">
+          
+          <div style="font-weight:800; font-size:1.1rem; color:#0f172a; margin-top:1rem;" id="qr-modal-job-title">
+            2026년도 상반기 신입사원 채용
+          </div>
+          <div style="font-size:0.95rem; color:#2563eb; font-weight:800; margin-top:0.3rem;" id="qr-modal-url-text">
+            http://localhost:8080/evaluator.html
+          </div>
+          <div class="margin-top-xs">
+            <a href="http://localhost:8080/evaluator.html" target="_blank" class="btn btn-sm btn-outline-primary" style="font-weight:700;">
+              <i data-lucide="external-link"></i> http://localhost:8080/evaluator.html 직접 접속하기
+            </a>
+          </div>
+        </div>
+
+        <div class="margin-top" style="text-align:left; background:#f8fafc; border-radius:8px; padding:1rem; border:1px solid #e2e8f0;">
+          <h5 style="margin:0 0 0.5rem 0; color:#334155;"><i data-lucide="info"></i> 접속 및 웹주소 안내:</h5>
+          <ol style="margin:0; padding-left:1.2rem; font-size:0.88rem; color:#475569; line-height:1.6;">
+            <li>위의 QR 코드는 <strong><code>http://localhost:8080/evaluator.html</code></strong> 주소에 정확히 연결되도록 고화질로 생성되었습니다.</li>
+            <li>PC 및 모바일 웹 브라우저에서 바로 클릭하여 이동하실 수 있습니다.</li>
+            <li>스마트폰으로 카메라 스캔 시 동일한 <strong><code>http://localhost:8080/evaluator.html</code></strong> 웹페이지로 즉시 이동합니다.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="modal-footer flex-between">
+        <button class="btn btn-outline-dark" id="btn-cancel-qr">닫기</button>
+        <button class="btn btn-primary" id="btn-print-qr">
+          <i data-lucide="printer"></i> QR 코드 안내문 인쇄
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>
